@@ -73,7 +73,20 @@ const questions = [
     "Rank the paintings based on their use of color.",
 ];
 
-
+// HttpClient helper
+var HttpClient = function () {
+    this.get = function (aUrl, aCallback) {
+      var anHttpRequest = new XMLHttpRequest();
+      anHttpRequest.onreadystatechange = function () {
+        if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+          aCallback(anHttpRequest.responseText);
+      };
+  
+      anHttpRequest.open("GET", aUrl, true);
+      anHttpRequest.send(null);
+    };
+  };
+  
 // Variables
 let currentPage = 1;
 
@@ -247,34 +260,29 @@ function goToNextPage() {
     }
 
 
-async function submitForm() {
+    async function submitForm() {
         // Save answers before submitting
         saveAnswers();
     
-        // Prepare the data to send
-        const data = {
-            Page: currentPage,
-            ...userAnswers[`page${currentPage}`],
-            TimeStamp: new Date().toISOString()
-        };
+        const answers = userAnswers[`page${currentPage}`];
     
-        console.log("Submitting data:", data); // Debugging
+        let url = "https://script.google.com/macros/s/AKfycbzYR7I0WJ1GHe6R1KoEyL-GyLOIVL9J-ut02vrJR5zVfauh2TF5IIIx4-l1A7NuxRE80g/exec?";
+        url += "Page=" + encodeURIComponent(currentPage);
     
-        // Google Apps Script Web App URL
-        const googleScriptURL = "https://script.google.com/macros/s/AKfycbz2FIsuFNAI2bv2CsxHrQ9m6O4JkwH9YNsbgofiqQWFPzGMqohP1_enHIO8s8BB7P5lqg/exec"; // ⬅️ Replace with your real URL
-    
-        try {
-            await fetch(googleScriptURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-            alert("Your responses have been submitted. Thank you!");
-        } catch (error) {
-            console.error("Error during submission:", error);
-            alert("There was an error submitting your responses. Please check your internet connection and try again.");
+        for (const [key, value] of Object.entries(answers)) {
+            // Rename question1 → Q1, question2 → Q2, etc.
+            const newKey = key.replace("question", "Q");
+            url += "&" + encodeURIComponent(newKey) + "=" + encodeURIComponent(value);
         }
+    
+        url += "&TimeStamp=" + encodeURIComponent(new Date().toISOString());
+    
+        var client = new HttpClient();
+        client.get(url, function (response) {
+            console.log("Data sent successfully");
+            alert("Your responses have been submitted. Thank you!");
+        });
     }
+    
+    
+    
