@@ -247,41 +247,32 @@ function goToNextPage() {
     }
 
 
-    async function submitForm() {
+async function submitForm() {
         // Save answers before submitting
         saveAnswers();
     
         // Prepare the data to send
         const data = {
-            Page: currentPage, // Current page number
-            ...userAnswers[`page${currentPage}`], // Answers for the current page
-            TimeStamp: new Date().toISOString() // Add a timestamp
+            Page: currentPage,
+            ...userAnswers[`page${currentPage}`],
+            TimeStamp: new Date().toISOString()
         };
     
         console.log("Submitting data:", data); // Debugging
     
         // Google Apps Script Web App URL
-        const googleScriptURL = "https://script.google.com/macros/s/AKfycbz2FIsuFNAI2bv2CsxHrQ9m6O4JkwH9YNsbgofiqQWFPzGMqohP1_enHIO8s8BB7P5lqg/exec";
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbz2FIsuFNAI2bv2CsxHrQ9m6O4JkwH9YNsbgofiqQWFPzGMqohP1_enHIO8s8BB7P5lqg/exec"; // ⬅️ Replace with your real URL
     
         try {
-            // Send the data to Google Sheets using a POST request
-            const response = await fetch(googleScriptURL, {
+            await fetch(googleScriptURL, {
                 method: "POST",
+                mode: "no-cors",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(data)
             });
-    
-            // Handle the response
-            if (response.ok) {
-                const result = await response.text();
-                console.log("Submission successful:", result);
-                alert("Your responses have been submitted. Thank you!");
-            } else {
-                console.error("Submission failed:", response.statusText);
-                alert("There was an error submitting your responses. Please try again.");
-            }
+            alert("Your responses have been submitted. Thank you!");
         } catch (error) {
             console.error("Error during submission:", error);
             alert("There was an error submitting your responses. Please check your internet connection and try again.");
