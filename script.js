@@ -261,7 +261,7 @@ function goToNextPage() {
         console.log("Submitting data:", data); // Debugging
     
         // Google Apps Script Web App URL
-        const googleScriptURL = "https://script.google.com/macros/s/AKfycbwzp6yyoWi32NlK9JYiXDNklWGvrNA55ooZbbHKM2d4XSVZE6tJpfjWBYKUvgcgFy6YGA/exec";
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbzuxPYcopxJt2xdCWJTiKbaylocohNuA0fHok3Kyops/dev";
     
         try {
             // Send the data to Google Sheets using a POST request
