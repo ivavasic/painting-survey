@@ -76,19 +76,21 @@ const questions = [
 // HttpClient helper
 var HttpClient = function () {
     this.get = function (aUrl, aCallback) {
-      var anHttpRequest = new XMLHttpRequest();
-      anHttpRequest.onreadystatechange = function () {
-        if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
-          aCallback(anHttpRequest.responseText);
-      };
-  
-      anHttpRequest.open("GET", aUrl, true);
-      anHttpRequest.send(null);
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function () {
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        };
+
+        anHttpRequest.open("GET", aUrl, true);
+        anHttpRequest.send(null);
     };
-  };
-  
+};
+
 // Variables
 let currentPage = 1;
+let identificationPageVisited = false; // Track if the identification page has been visited
+let consentPageVisited = false; // Track if the consent page has been visited
 
 // DOM Elements
 const welcomePage = document.getElementById("welcomePage");
@@ -100,19 +102,102 @@ const myForm = document.getElementById("myForm");
 const backButton = document.getElementById("backButton");
 const nextButton = document.getElementById("nextButton");
 const submitButton = document.getElementById("submitButton");
+// DOM Elements for User Info
+const identificationPage = document.getElementById("identificationPage");
+const identificationForm = document.getElementById("identificationForm");
+const userNameInput = document.getElementById("userName");
+const userEmailInput = document.getElementById("userEmail");
+const startButton = document.getElementById("startButton");
+const consentPage = document.getElementById("consentPage");
+const consentCheckbox = document.getElementById("consentCheckbox");
+const agreeConsentButton = document.getElementById("agreeConsentButton");
+
+
 
 // Event Listeners
-document.getElementById("startButton").addEventListener("click", redirectToFirstFormPage);
+continueButton.addEventListener("click", redirectToConsentPage);
+agreeConsentButton.addEventListener("click", handleConsentAgreement);
+startButton.addEventListener("click", collectUserInfo);
 backButton.addEventListener("click", goToPreviousPage);
 nextButton.addEventListener("click", goToNextPage);
 submitButton.addEventListener("click", submitForm);
 
+
+
+
+function redirectToConsentPage() {
+    if (consentPageVisited) {
+        // If already consented, go directly to identification page
+        redirectToIdentificationPage();
+    } else {
+        welcomePage.style.display = "none";
+        consentPage.style.display = "block";
+    }
+}
+
+
+function handleConsentAgreement() {
+    if (!consentCheckbox.checked) {
+        alert("The form cannot be initiated without your consent.");
+        return;
+    }
+
+    consentPageVisited = true; // Mark as visited
+    consentPage.style.display = "none";
+    redirectToIdentificationPage();
+}
+
+
 // Functions
-function redirectToFirstFormPage() {
-    welcomePage.style.display = "none";
+function redirectToIdentificationPage() {
+    if (identificationPageVisited) {
+        // If already filled, go directly to survey
+        welcomePage.style.display = "none";
+        surveyPage.style.display = "block";
+        loadPage(currentPage);
+    } else {
+        welcomePage.style.display = "none";
+        identificationPage.style.display = "block";
+
+        document.getElementById("continueButton").textContent = "Resume";
+    }
+}
+
+
+
+function collectUserInfo() {
+
+
+    const userName = userNameInput.value.trim();
+    const userEmail = userEmailInput.value.trim();
+
+    if (userName === "" || userEmail === "") {
+        alert("Please fill out both your name and email address.");
+        return;
+    }
+
+    // Save globally
+    window.userName = userName;
+    window.userEmail = userEmail;
+
+    // Generate a random user code if not already
+    if (!window.userCode) {
+        window.userCode = generateUserCode();
+    }
+
+    // Collect start time
+    window.startTime = new Date().toISOString();
+
+    identificationPageVisited = true; // Mark as visited
+    identificationPage.style.display = "none";
+
     surveyPage.style.display = "block";
     loadPage(currentPage);
 }
+
+
+
+
 
 function loadPage(pageNumber) {
     // Get the page data from the `pages` array
@@ -142,11 +227,15 @@ function loadPage(pageNumber) {
 
     // Update the navigation buttons
     updateNavigationButtons();
+
+    // Scroll to top of the page
+    window.scrollTo(0, 0);
+
 }
 
 function goToPreviousPage() {
-     // Save answers before navigating
-     saveAnswers();
+    // Save answers before navigating
+    saveAnswers();
 
     if (currentPage > 1) {
         currentPage--;
@@ -156,7 +245,7 @@ function goToPreviousPage() {
         surveyPage.style.display = "none";
         welcomePage.style.display = "block";
         // Change the text of the start button into Resume
-        document.getElementById("startButton").textContent = "Resume";
+        document.getElementById("continueButton").textContent = "Resume";
     }
 }
 
@@ -169,8 +258,8 @@ function goToNextPage() {
         return; // Stop if the form is not valid     
     }
 
-     // Save answers before navigating
-     saveAnswers();
+    // Save answers before navigating
+    saveAnswers();
 
     if (currentPage < totalPages) {
         currentPage++;
@@ -183,106 +272,151 @@ function goToNextPage() {
     }
 }
 
-    function saveAnswers() {
-        const formData = new FormData(myForm);
-        const answers = Object.fromEntries(formData.entries());
-        console.log(answers); // For debugging purposes, you can remove this later
-        alert("Your responses have been saved. Thank you!");
+function updateNavigationButtons() {
+
+    // Check if the current page is the last page
+    if (currentPage === totalPages) {
+        // Hide the next button and show the submit button on the last page
+        nextButton.style.display = "none";
+        submitButton.style.display = "block";
+    } else {
+        // Show the next button and hide the submit button for all other pages
+        nextButton.style.display = "block";
+        submitButton.style.display = "none";
     }
+}
 
-    function updateNavigationButtons() {
 
-        // Check if the current page is the last page
-        if (currentPage === totalPages) {
-            // Hide the next button and show the submit button on the last page
-            nextButton.style.display = "none";
-            submitButton.style.display = "block";
-        } else {
-            // Show the next button and hide the submit button for all other pages
-            nextButton.style.display = "block";
-            submitButton.style.display = "none";
+function generateForm() {
+    const form = document.getElementById("evaluationForm");
+    form.innerHTML = ""; // Clear any existing content
+
+    // Loop through the questions array to generate the form
+    questions.forEach((question, index) => {
+        const questionNumber = index + 1;
+
+        // Create a container for the question
+        const questionContainer = document.createElement("div");
+        questionContainer.classList.add("question-container");
+        questionContainer.style.marginBottom = "20px";
+
+        // Add the question text
+        const questionText = document.createElement("p");
+        questionText.textContent = `${questionNumber}. ${question}`;
+        questionContainer.appendChild(questionText);
+
+        // Add radio buttons for the question
+        for (let i = 1; i <= 5; i++) {
+            const label = document.createElement("label");
+            label.style.marginRight = "10px";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = `question${questionNumber}`;
+            radio.value = i;
+            radio.required = true; // Make the question required
+
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(` ${i}`));
+            questionContainer.appendChild(label);
         }
+
+        // Append the question container to the form
+        form.appendChild(questionContainer);
+    });
+}
+
+// Save answers on any click
+function saveAnswers() {
+    const form = document.getElementById("evaluationForm");
+    const formData = new FormData(form);
+
+    // Store answers for the current page
+    const answers = {};
+    for (const entry of formData.entries()) {
+        const key = entry[0];
+        const value = entry[1];
+        answers[key] = value;
+    }
+    userAnswers["page" + currentPage] = answers;
+    console.log("Answers for Page " + currentPage + ":", answers);
+}
+
+
+
+function submitForm() {
+    // 1. Validate the current page
+    const form = document.getElementById("evaluationForm");
+    if (!form.reportValidity()) {
+        return;
     }
 
+    // 2. Save current page answers in 'userAnswers' variable created in the 'saveAnswers' function
+    saveAnswers();
+    console.log("All collected answers:", userAnswers);
 
+    // 3. Capture the end time
+    const endTime = new Date().toISOString();
 
-    function generateForm() {
-        const form = document.getElementById("evaluationForm");
-        form.innerHTML = ""; // Clear any existing content
+    const allPages = Object.keys(userAnswers); // ["page1", "page2", "page3", ...]
+    allPages.sort(function (a, b) {
+        // Sort pages based on page number
+        const pageNumberA = parseInt(a.replace("page", ""), 10);
+        const pageNumberB = parseInt(b.replace("page", ""), 10);
+        if (pageNumberA < pageNumberB) {
+            return -1;
+        } else if (pageNumberA > pageNumberB) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
 
-        // Loop through the questions array to generate the form
-        questions.forEach((question, index) => {
-            const questionNumber = index + 1;
-
-            // Create a container for the question
-            const questionContainer = document.createElement("div");
-            questionContainer.classList.add("question-container");
-            questionContainer.style.marginBottom = "20px";
-
-            // Add the question text
-            const questionText = document.createElement("p");
-            questionText.textContent = `${questionNumber}. ${question}`;
-            questionContainer.appendChild(questionText);
-
-            // Add radio buttons for the question
-            for (let i = 1; i <= 5; i++) {
-                const label = document.createElement("label");
-                label.style.marginRight = "10px";
-
-                const radio = document.createElement("input");
-                radio.type = "radio";
-                radio.name = `question${questionNumber}`;
-                radio.value = i;
-                radio.required = true; // Make the question required
-
-                label.appendChild(radio);
-                label.appendChild(document.createTextNode(` ${i}`));
-                questionContainer.appendChild(label);
-            }
-
-            // Append the question container to the form
-            form.appendChild(questionContainer);
-        });
+    // Generate random user code
+    if (!window.userCode) {
+        window.userCode = generateUserCode();
     }
 
-    // Save answers on any click
-    function saveAnswers() {
-        const form = document.getElementById("evaluationForm");
-        const formData = new FormData(form);
+    // Now when all pages are sorted from n to 1, we can iterate through them in reverse order and send the data to the server
+    for (const pageName of allPages.reverse()) {
+        const answers = userAnswers[pageName];
+        const pageNumber = pageName.replace("page", "");
 
-        // Store answers for the current page
-        const answers = {};
-        formData.forEach((value, key) => {
-            answers[key] = value;
-        });
-        userAnswers[`page${currentPage}`] = answers;
-        console.log(`Answers for Page ${currentPage}:`, answers);
-    }
+        let url = "https://script.google.com/macros/s/AKfycbwWtJRYa3Bz7OpizA4LtBANOOwS9NQen1GS6vgORGW_oYsjjDS0qXXITtxWL25blHMrTQ/exec?";
 
+        // ➔ Add user's info
+        url += "UserName=" + encodeURIComponent(window.userName);
+        url += "&UserEmail=" + encodeURIComponent(window.userEmail);
+        url += "&UserCode=" + encodeURIComponent(window.userCode);
 
-    async function submitForm() {
-        // Save answers before submitting
-        saveAnswers();
-    
-        const answers = userAnswers[`page${currentPage}`];
-    
-        let url = "https://script.google.com/macros/s/AKfycbzYR7I0WJ1GHe6R1KoEyL-GyLOIVL9J-ut02vrJR5zVfauh2TF5IIIx4-l1A7NuxRE80g/exec?";
-        url += "Page=" + encodeURIComponent(currentPage);
-    
-        for (const [key, value] of Object.entries(answers)) {
-            // Rename question1 → Q1, question2 → Q2, etc.
-            const newKey = key.replace("question", "Q");
+        // ➔ Then add page info
+        url += "&Page=" + encodeURIComponent(pageNumber);
+
+        for (const questionKey in answers) {
+            const newKey = questionKey.replace("question", "Q");
+            const value = answers[questionKey];
             url += "&" + encodeURIComponent(newKey) + "=" + encodeURIComponent(value);
         }
-    
-        url += "&TimeStamp=" + encodeURIComponent(new Date().toISOString());
-    
+
+        // ➔ Add the start time and end time
+        url += "&StartTime=" + encodeURIComponent(window.startTime);
+        url += "&EndTime=" + encodeURIComponent(endTime);
+
         var client = new HttpClient();
         client.get(url, function (response) {
-            console.log("Data sent successfully");
-            alert("Your responses have been submitted. Thank you!");
+            console.log("Data sent successfully for page " + pageNumber);
         });
     }
-    
-    
-    
+
+    alert("All your responses have been submitted. Thank you!");
+}
+
+// Helper function to generate random user code
+function generateUserCode() {
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+}
