@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Painting Evaluation</title>
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-	<meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script defer src="script.js"></script>
+    <script defer src="script.js"></script>
     <!-- CSS Styles -->
     <style>
+        /* Page general margin */
+        body {
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
         /* Divider Lines*/
         /* Rounded border */
         hr.rounded {
@@ -26,7 +36,8 @@
             /* Gray background */
             color: rgb(0, 0, 0);
             /* White text */
-            border: 1px solid #a0a0a0; /* Gray border */
+            border: 1px solid #a0a0a0;
+            /* Gray border */
             padding: 8px 15px;
             /* Padding */
             text-align: center;
@@ -69,79 +80,142 @@
         }
 
         .navigation-buttons {
-            text-align: center; /* Center the buttons center */
-            display: flex; /* Use flexbox for layout */
-            justify-content: center; /* Align buttons next to each other */
-            gap: 10px; /* Add spacing between buttons */
+            text-align: center;
+            /* Center the buttons center */
+            display: flex;
+            /* Use flexbox for layout */
+            justify-content: center;
+            /* Align buttons next to each other */
+            gap: 10px;
+            /* Add spacing between buttons */
+        }
+
+        /* Form input fields */
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
     </style>
     <!-- CSS Styles -->
-<!-- End Head -->
+    <!-- End Head -->
 </head>
-<body>
-    <!-- Start Body -->
-<body>
-	<!-- First page content -->
-	<div id="welcomePage">
-		<h1 style="text-align: center;">Welcome to the Painting Evaluation Study!</h1>
 
-		<div style="text-align: center;">
-			<i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
-		</div>
+<!-- Start Body -->
 
-		<h3>This survey is intended for research purposes and involves ranking the selected paintings from the Getty Collection. These rankings will serve as a baseline to evaluate the performance of Large Language Models on the same tasks.
-			<hr class="rounded">
-		</h3>
+<body>
+    <!-- PAGES IN MY WEBSITE: -->
+    <!-- First page content -->
+    <div id="welcomePage">
+        <h1 style="text-align: center;">Welcome to the Painting Evaluation Study!</h1>
+
+        <div style="text-align: center;">
+            <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
+        </div>
+
+        <h3>This survey is intended for research purposes and involves ranking the selected paintings from the Getty
+            Collection. These rankings will serve as a baseline to evaluate the performance of Large Language Models on
+            the same tasks.
+            <hr class="rounded">
+        </h3>
         <h3>Context:</h3>
-        <p>You are a painting evaluator. Please imagine that the questions or requirements you receive represent the needs or inquiries of visitors to a virtual museum. Your task is to rank each painting according to how well it fulfills these visitor requirements. Evaluate each painting individually based on the presented questions, without comparing it to other paintings.</p>
-		<h3>Your task:</h3>
-		<p>Rank each painting from 1 to 5 based on how well it meets the user’s requirement:</p>
-		<ol>
-			<li>Does not meet the criteria or relevant information is missing from the description.</li>
-			<li>Meets very few aspects. </li>
-			<li>Meets some aspects.</li>
-			<li>Meets most aspects.</li>
-			<li>Meets entirely the criteria.</li>
-		</ol>
-		If the information needed to answer a question is missing from the painting's metadata or description (e.g.,
-		description, place of creation, or other relevant details), assign a rank of 1.
-		</p>
+        <p>You are a painting evaluator. Please imagine that the questions or requirements you receive represent the
+            needs or inquiries of visitors to a virtual museum. Your task is to rank each painting according to how well
+            it fulfills these visitor requirements. Evaluate each painting individually based on the presented
+            questions, without comparing it to other paintings.</p>
+        <h3>Your task:</h3>
+        <p>Rank each painting from 1 to 5 based on how well it meets the user’s requirement:</p>
+        <ol>
+            <li>Does not meet the criteria or relevant information is missing from the description.</li>
+            <li>Meets very few aspects. </li>
+            <li>Meets some aspects.</li>
+            <li>Meets most aspects.</li>
+            <li>Meets entirely the criteria.</li>
+        </ol>
+        If the information needed to answer a question is missing from the painting's metadata or description (e.g.,
+        description, place of creation, or other relevant details), assign a rank of 1.
+        </p>
 
-		<div style="text-align: center;">
-			<i class="fa fa-exclamation-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
-		</div>
+        <div style="text-align: center;">
+            <i class="fa fa-exclamation-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
+        </div>
 
-		<p> <b>Note 1:</b> You will see one painting per page. Please answer all 20 requests before continuing. <br>
-			<b>Note 2:</b> Each painting consists mostly of metadata information followed by the description of the
-			painting, while a few of them involve metadata only. The metadata and the description appear as separate
-			paragraphs.<br>
-			<b>Note 3:</b> The content of the painting is entirely copied from the Getty Collection website. Some text
-			may appear unstructured due to the formatting.<br>
-			<b>Note 4:</b> This form tracks the time. Your name, email address, and answers are also collected for
-			analysis and will be shared with the ACM JOCCH journal’s editors and reviewers. If the article is accepted
-			for publication, all personal information will be deleted before the results are published in a GitHub
-			repository.<br>
-		</p>
+        <p> <b>Note 1:</b> You will see one painting per page. Please answer all 20 requests before continuing. <br>
+            <b>Note 2:</b> Each painting consists mostly of metadata information followed by the description of the
+            painting, while a few of them involve metadata only. The metadata and the description appear as separate
+            paragraphs.<br>
+            <b>Note 3:</b> The content of the painting is entirely copied from the Getty Collection website. Some text
+            may appear unstructured due to the formatting.<br>
+        </p>
 
-		<div style="text-align: center;">
-			<i class="fa fa-question-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
-		</div>
+        <div style="text-align: center;">
+            <i class="fa fa-question-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
+        </div>
 
-		<p style="text-align: center;"> For any questions, please write to: <a
-				href="mailto:i.vasic@pm.univpm.it">i.vasic@pm.univpm.it</a></p>
+        <p style="text-align: center;"> For any questions, please write to: <a
+                href="mailto:i.vasic@pm.univpm.it">i.vasic@pm.univpm.it</a></p>
 
-		<p style="text-align: center;"><b>Enjoy the art and the survey!</b></p>
+        <p style="text-align: center;"><b>Enjoy the art and the survey!</b></p>
 
-		<hr class="rounded">
+        <hr class="rounded">
 
-		<!-- Buttons Forward and Back -->
-		<div style="text-align: center; margin-top: 20px;">
-			<button class="nav-button" id="startButton">Start</button>
-		</div>
-	</div>
-	<!-- End first page content -->
+        <!-- Buttons Forward and Back -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="nav-button" id="continueButton">Continue</button>
+        </div>
+    </div>
+    <!-- End first page content -->
 
+    <!-- Consent Page -->
+    <div id="consentPage" style="display: none;">
+        <div style="text-align: center; margin-top: 20px;">
+            <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
+        </div>
+        <h2>Consent for Participation</h2>
+        <p>For the identification reasons, this form tracks and collects your <b>name, email address, timestamp, and answers</b> for research analysis.
+            The collected information will be shared with the ACM JOCCH journal's editors and reviewers.
+            If the article is accepted, all personal information will be deleted before publishing the results in a
+            GitHub or other repository.
+            A <b>random code</b> will also be generated and sent to your email, <b>which will be collected as well.</b></p>
 
+        <div style="margin-top: 20px;">
+            <input type="checkbox" id="consentCheckbox" required>
+            <label for="consentCheckbox">
+                I agree to the collection and use of my personal data as described above.
+            </label>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="button" class="nav-button" id="agreeConsentButton">Agree and Continue</button>
+        </div>
+    </div>
+    <!-- End Consent Page -->
+
+    <!-- Identification page -->
+    <div id="identificationPage" style="display: none;">
+        <div style="text-align: center; margin-top: 20px;">
+            <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
+        </div>
+        <h2>Please provide your information</h2>
+        <form id="identificationForm">
+            <label for="userName">Full name:</label>
+            <input type="text" id="userName" name="userName" required><br><br>
+
+            <label for="userEmail">Email:</label>
+            <input type="email" id="userEmail" name="userEmail" required><br><br>
+
+            <button type="button" class="nav-button" id="startButton">Start the Survey</button>
+        </form>
+    </div>
+    <!-- End identification page -->
+
+    <!-- Survey pages -->
     <div id="surveyPage" class="hidden">
         <!-- Preserve always the palette icon and increase the upper margin -->
         <div style="text-align: center; margin-top: 20px;">
@@ -152,10 +226,11 @@
         <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0;">
             <p id="shortInstructions" style="margin: 0; text-align: center;"></p>
             <b>Criteria:</b> <br>
-            <b>1:</b> Does not meet the criteria/missing information. <b>2:</b> Meets very few aspects. <b>3:</b> Meets some aspects. <b>4:</b> Meets most aspects. <b>5:</b> Meets entirely the requirement.
+            <b>1:</b> Does not meet the criteria/missing information. <b>2:</b> Meets very few aspects. <b>3:</b> Meets
+            some aspects. <b>4:</b> Meets most aspects. <b>5:</b> Meets entirely the requirement.
             </p>
         </div>
-        
+
         <form id="evaluationForm" novalidate></form>
         <div class="navigation-buttons">
             <button class="nav-button" id="backButton">Back</button>
@@ -163,5 +238,9 @@
             <button class="nav-button" id="submitButton">Submit</button>
         </div>
     </div>
+    <!-- End survey pages -->
+
+
 </body>
+
 </html>
