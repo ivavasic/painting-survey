@@ -1,55 +1,10 @@
 // Constants
 const userAnswers = {}; // Stores answers for each page
-const totalPages = 2;
-// Content for each page
-const pages = [
-    {
-        heading: "Painting 1 of 50:",
-        description:
-            `Title: The Wedding Feast at Cana, <br>
-            Artist/Maker: Lavinia Fontana (Italian, 1552 - 1614),
-            Date: about 1575–1580,
-            Medium: Oil on copper,
-            Dimensions: Unframed: 47.3 x 36.2 cm (18 5/8 x 14 1/4 in.),
-            Place: Italy (Place Created),
-            Culture: Italian,
-            Object Number: 2022.28,
-            Mark(s): Verso: stencil 727DX,
-            Department: Paintings,
-            Classification: Painting,
-            Object Type: Painting 
-            
-            <br><br>
+const totalPages = 50;
+// Content for each page initially empty
+let pages = [];
 
-            The Wedding Feast at Cana, a small painting intended for private devotion, depicts an episode from the life of Christ from the Gospel of John (2:1-11) in which Jesus, his mother Mary, and his disciples are invited to a wedding. When Mary notices that the wine has run out, Christ delivers a sign of his divinity by turning water into wine at her request. Here, Christ and Mary are seated at the center of the table, with the bridegroom on their right and the bride seated at the head of the table. Other guests, some standing and some seated, are assembled around the table. Behind them servants arrive with plates of food. Fontana shows the moment of the miracle, when Jesus raises his hand in benediction. The prominent golden jugs in the foreground are evidence of the miracle. A credenza with a rich display of silver plates occupies the wall on the left. An elegant exedra-shaped peristyle, accessed via a double semicircular staircase, part concave and part convex, appears in the upper part of the composition. The artist has painstakingly applied the paint in thin layers and added rich glazes, resulting in a polished, luminous, and highly detailed composition.`
-    },
-    {
-        heading: "Painting 2 of 50",
-        description:
-            `Title: Portrait of Isabella of Portugal, 
-            Artist/Maker: Workshop of Rogier van der Weyden (Netherlandish, 1399/1400 - 1464), 
-            Date: about 1450, 
-            Medium: Oil on panel, 
-            Dimensions: Unframed: 46 × 37.1 cm (18 1/8 × 14 5/8 in.) Framed [Outer Dim]: 60.6 × 50.8 × 3.5 cm (23 7/8 × 20 × 1 3/8 in.), 
-            Place: Netherlands (Place Created),
-            Culture: Netherlandish, 
-            Object Number: 78.PB.3, 
-            Inscription(s): Upper left: "PERSICA / SIBYLLA / [.1.]A", 
-            Mark(s): Verso: upper center, white rectangular label, printed in black: “NO. [printed in red:] 28517 / [printed in black:] PICTURE”; upper right, black stencil: “426YD”; upper right, unidentified red circular wax seal, 
-            Previous Attribution: After Rogier van der Weyden (Netherlandish, 1399/1400 - 1464) Rogier van der Weyden (Netherlandish, 1399/1400 - 1464),
-            Department: Paintings, 
-            Classification: Painting, 
-            Object Type: Painting
-		
-		    <br> <br>
-
-		    Seated with her hands crossed in her lap, Isabella of Portugal, the duchess of Burgundy, conveys the poise and confidence of her noble position. Her sumptuous attire, heavily woven with gold thread, and her jeweled fingers and headdress reflect her aristocratic status. Oddly, the artist did not match the patterns of the sleeves, as would have been customary during this period., In fact, the duchess never actually sat for this portrait, which may account for the misunderstood representation of her clothing. Scholars believe that the artist copied Isabella's likeness from a lost portrait by Rogier van der Weyden. The tender, slightly mocking expression on the duchess's face and the elongated fingers reflect van der Weyden's concept of portraiture., The prominent inscription in the upper left corner of the panel, PERSICA SIBYLLA IA, suggests that the portrait was part of a series depicting sibyls. This identity strikingly contrasts with Duchess Isabella's costume. Scholars believe that someone other than the original artist added the inscription, as well as the brown background meant to simulate wood, some time after the portrait was painted.`
-
-    },
-
-];
-
-// Constants for the questions
+// Constants for the 20 questions
 const questions = [
     "Show me the painting depicting a single moment rather than a sequence of events.",
     "Show me the painting depicting a sequence of events rather than a single moment.",
@@ -144,7 +99,19 @@ function handleConsentAgreement() {
 
     consentPageVisited = true; // Mark as visited
     consentPage.style.display = "none";
-    redirectToIdentificationPage();
+
+    // Now fetch the paintings only after consent
+    fetch('paintings.json')
+        .then(response => response.json())
+        .then(data => {
+            pages = data;
+            console.log("Paintings loaded:", pages.length);
+            redirectToIdentificationPage(); // Proceed only after loading paintings
+        })
+        .catch(error => {
+            console.error("Failed to load paintings.json:", error);
+            alert("Failed to load paintings. Please try again later.");
+        });
 }
 
 
@@ -166,21 +133,20 @@ function redirectToIdentificationPage() {
 
 
 function collectUserInfo() {
-
-
     const userName = userNameInput.value.trim();
     const userEmail = userEmailInput.value.trim();
 
+    // Reminder to fill out the form with an alert
     if (userName === "" || userEmail === "") {
         alert("Please fill out both your name and email address.");
         return;
     }
 
-    // Save globally
+    // Save globally for later use for sending to the server
     window.userName = userName;
     window.userEmail = userEmail;
 
-    // Generate a random user code if not already
+    // Generate a random user code IF not already
     if (!window.userCode) {
         window.userCode = generateUserCode();
     }
@@ -190,26 +156,28 @@ function collectUserInfo() {
 
     identificationPageVisited = true; // Mark as visited
     identificationPage.style.display = "none";
-
     surveyPage.style.display = "block";
-    loadPage(currentPage);
+    loadPage(currentPage); // ! Load the first page of the survey
+
 }
 
-
-
-
-
 function loadPage(pageNumber) {
+    // Check if the page number is zero index
+    if (pages.length === 0) {
+        console.error("Pages not loaded yet!");
+        return;
+    }
+
     // Get the page data from the `pages` array
     const pageData = pages[pageNumber - 1];
     console.log(`Page Number: ${pageNumber}`); // Log the current page number
-    console.log(pageData); // For debugging purposes, you can remove this later
+    console.log(pageData);
 
     // Update the page heading
     pageHeading.textContent = pageData.heading;
 
     // Update the painting description
-    paintingDescription.innerHTML = pageData.description;
+    paintingDescription.innerHTML = pageData.description.replace(/\n/g, "<br>");
 
     // Generate the form with questions
     generateForm();
@@ -225,13 +193,13 @@ function loadPage(pageNumber) {
         }
     }
 
-    // Update the navigation buttons
     updateNavigationButtons();
 
     // Scroll to top of the page
     window.scrollTo(0, 0);
 
 }
+
 
 function goToPreviousPage() {
     // Save answers before navigating
@@ -248,6 +216,7 @@ function goToPreviousPage() {
         document.getElementById("continueButton").textContent = "Resume";
     }
 }
+
 
 function goToNextPage() {
     // Proceede only if all questions are answered
@@ -345,20 +314,20 @@ function saveAnswers() {
 
 
 function submitForm() {
-    // 1. Validate the current page
+    // Validate the current page
     const form = document.getElementById("evaluationForm");
     if (!form.reportValidity()) {
         return;
     }
 
-    // 2. Save current page answers in 'userAnswers' variable created in the 'saveAnswers' function
+    // Save current page answers in 'userAnswers' variable created in the 'saveAnswers' function
     saveAnswers();
     console.log("All collected answers:", userAnswers);
 
     // 3. Capture the end time
     const endTime = new Date().toISOString();
 
-    const allPages = Object.keys(userAnswers); // ["page1", "page2", "page3", ...]
+    const allPages = Object.keys(userAnswers); // Looks like: ["page1", "page2", "page3", ...]
     allPages.sort(function (a, b) {
         // Sort pages based on page number
         const pageNumberA = parseInt(a.replace("page", ""), 10);
@@ -382,14 +351,14 @@ function submitForm() {
         const answers = userAnswers[pageName];
         const pageNumber = pageName.replace("page", "");
 
-        let url = "https://script.google.com/macros/s/AKfycbwWtJRYa3Bz7OpizA4LtBANOOwS9NQen1GS6vgORGW_oYsjjDS0qXXITtxWL25blHMrTQ/exec?";
+        let url = "https://script.google.com/macros/s/AKfycbyGuVgfCeUMccwRTKl4eNJprzTLwGRE0fzsdxthsoeyYAHMWBKixzkO6xZQnaXZwoLb8Q/exec?";
 
         // ➔ Add user's info
         url += "UserName=" + encodeURIComponent(window.userName);
         url += "&UserEmail=" + encodeURIComponent(window.userEmail);
         url += "&UserCode=" + encodeURIComponent(window.userCode);
 
-        // ➔ Then add page info
+        // ➔ Add page info
         url += "&Page=" + encodeURIComponent(pageNumber);
 
         for (const questionKey in answers) {
