@@ -103,7 +103,16 @@
         label[for="consentCheckbox"] {
             cursor: pointer;
         }
-        
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
     <!-- CSS Styles -->
     <!-- End Head -->
@@ -121,18 +130,13 @@
             <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
         </div>
 
-        <h3>This survey is intended for research purposes and involves ranking the selected paintings from the Getty
-            Collection. These rankings will serve as a baseline to evaluate the performance of Large Language Models on
-            the same tasks.
+        <h3>This survey is intended for research purposes and involves ranking the selected paintings from the Getty Collection. These rankings will serve as a baseline to evaluate the performance of Large Language Models on the same tasks.
             <hr class="rounded">
         </h3>
         <h3>Context:</h3>
-        <p>You are a painting evaluator. Please imagine that the questions or requirements you receive represent the
-            needs or inquiries of visitors to a virtual museum. Your task is to rank each painting according to how well
-            it fulfills these visitor requirements. Evaluate each painting individually based on the presented
-            questions, without comparing it to other paintings.</p>
+        <p>You are a painting evaluator. You will be presented with 20 pages each consisting of one the textual description of one painting and 10 form statments. Your task is to rank how well the paintng's textual description aligns with the statments (e.g.<i> "The description includes references to nature, such as landscapes."</i>). Evaluate each painting individually based on the presented statments, without comparing it to other paintings. <b>Images of paintings are not availavble</b> as we currently use only textual descriptions for our validation process.</p>
         <h3>Your task:</h3>
-        <p>Rank each painting from 1 to 5 based on how well it meets the user’s requirement:</p>
+        <p>Rank each painting from 1 to 5 based on how well it meets the form statments:</p>
         <ol>
             <li>Does not meet the criteria or relevant information is missing from the description.</li>
             <li>Meets very few aspects. </li>
@@ -148,12 +152,9 @@
             <i class="fa fa-exclamation-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
         </div>
 
-        <p> <b>Note 1:</b> You will see one painting per page. Please answer all 20 requests before continuing. <br>
-            <b>Note 2:</b> Each painting consists mostly of metadata information followed by the description of the
-            painting, while a few of them involve metadata only. The metadata and the description appear as separate
-            paragraphs.<br>
-            <b>Note 3:</b> The content of the painting is entirely copied from the Getty Collection website. Some text
-            may appear unstructured due to the formatting.<br>
+        <p> <b>Note 1:</b> You will see one painting per page. Please rank all 10 statments before continuing. <br>
+            <b>Note 2:</b> Each painting consists mostly of metadata information followed by the description of the painting, while a few of them involve metadata only. The metadata and the description appear as separate paragraphs.<br>
+            <b>Note 3:</b> The content of the painting is entirely copied from the Getty Collection website. Some text may appear unstructured due to the formatting.<br>
         </p>
 
         <div style="text-align: center;">
@@ -180,12 +181,10 @@
             <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
         </div>
         <h2>Consent for Participation</h2>
-        <p>For the identification reasons, this form tracks and collects your <b>name, email address, timestamp, and
-                answers</b> for research analysis.
-            The collected information will be shared with the ACM JOCCH journal's editors and reviewers.
-            If the article is accepted, all personal information will be deleted before publishing the results in a
-            GitHub or other repository.
-            A <b>random code</b> will also be generated and collected as well upon your submission.</p>
+        <p>For identification purposes, you will be asked in the next page to provide you information inlcuding:
+            <b>Age, Gender, Education, Country, Profession, Familiarity with Art or Museums, and IP Adress.</b>. You will also be asked to provide a code that we shared with you so that we can identify valid participants and consider only the responses from those who enter the correct code. Additionally, a random code will be generated and collected for each user to differentiate individual participants and link their responses across multiple pages. <br> 
+            The collected information will be used for research analysis and shared with the ACM JOCCH journal's editors and reviewers. 
+            If the article is accepted, all personal information will be deleted before publishing the results in a GitHub or other repository.</p>
 
         <div style="margin-top: 20px;">
             <input type="checkbox" id="consentCheckbox" required>
@@ -205,18 +204,54 @@
         <div style="text-align: center; margin-top: 20px;">
             <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
         </div>
-        <h2>Please provide your information</h2>
+        <h2>Please provide your background information</h2>
         <form id="identificationForm">
-            <label for="userName">Full name:</label>
-            <input type="text" id="userName" name="userName" required><br><br>
 
-            <label for="userEmail">Email:</label>
-            <input type="email" id="userEmail" name="userEmail" required><br><br>
+            <label for="userAge">Age:</label>
+            <input type="text" id="userAge" name="userAge" required><br><br>
+
+            <label for="userGender">Gender:
+                <span style="color: gray; font-size: 14px;">(e.g., Female, Male, Non-binary, Prefer not to say)</span>
+            </label>
+            <input type="text" id="userGender" name="userGender" required><br><br>
+
+            <label for="userEducation">Highest level of education:</label>
+            <select id="userEducation" name="userEducation" required>
+                <option value="">-- Select --</option>
+                <option value="High school">High school</option>
+                <option value="Bachelor's degree">Bachelor's degree</option>
+                <option value="Master's degree">Master's degree</option>
+                <option value="PhD">PhD</option>
+                <option value="Other">Other</option>
+            </select><br><br>
+
+            <label for="userCountry">Country:
+            </label>
+            <input type="text" id="userCountry" name="userCountry" required><br><br>
+
+
+            <label for="userProfession">Profession:
+                <span style="color: gray; font-size: 14px;">(e.g., Student, Researcher, Curator, Developer)</span>
+            </label>
+            <input type="text" id="userProfession" name="userProfession" required><br><br>
+
+
+            <label for="userExperience">Familiarity with art or museums:</label>
+            <select id="userExperience" name="userExperience" required>
+                <option value="">-- Select --</option>
+                <option value="None">None</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Expert">Expert</option>
+            </select><br><br>
+
+            <label for="userProvidedCode">Please insert here the code we shared with you:</label>
+            <input type="text" id="userProvidedCode" name="userProvidedCode">
+            <br><br>
 
             <button type="button" class="nav-button" id="startButton">Start the Survey</button>
         </form>
     </div>
-    <!-- End identification page -->
 
     <!-- Survey pages -->
     <div id="surveyPage" class="hidden">
@@ -243,6 +278,14 @@
     </div>
     <!-- End survey pages -->
 
+    <!-- Submission Modal -->
+    <div id="submissionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center;">
+        <div style="position: relative; top: 50%; transform: translateY(-50%); background: white; padding: 20px; border-radius: 8px; display: inline-block;">
+            <p>Submitting your responses, please wait...</p>
+            <div class="spinner" style="margin-top: 10px; width: 40px; height: 40px; border: 4px solid #ccc; border-top: 4px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        </div>
+    </div>
+    <!-- End Submission Modal -->
 
 </body>
 
