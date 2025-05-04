@@ -1,51 +1,55 @@
 // Constants
 const userAnswers = {}; // Stores answers for each page
-const totalPages = 50;
+const totalPages = 20;
 // Content for each page initially empty
 let pages = [];
 
 // Constants for the 20 questions
 const questions = [
-    "Show me the painting depicting a single moment rather than a sequence of events.",
-    "Show me the painting depicting a sequence of events rather than a single moment.",
-    "Does the height of the painting exceed 100 cm ?",
-    "Is the width of the painting greater than 50 cm? If yes, assign a higher rank for its suitability for wide displays.",
-    "Does the painting's surface area (height x width) exceed 2000 cm²? If yes, increase its ranking for size prominence.",
-    "Does the painting depict biblical events?",
-    "Show me the paintings with an unknown artist/maker.",
-    "Does the title of the painting directly reflect a significant historical, mythological, or biblical event? If yes, rank it higher.",
-    "Does the painting include key historical figures or famous literary characters mentioned in its description? Rank accordingly.",
-    "In which paintings the artist employs chiaroscuro or tenebrism to enhance the drama and focus within the painting?",
-    "Does the height of the painting exceed 30 cm?",
-    "Does the metadata describe specific techniques, such as glazing or impasto, that enhance the visual or textural quality of the painting?",
-    "Does the metadata mention a specific workshop or studio? Rank accordingly.",
-    "Is the painting's place of creation associated with the origin of its depicted theme or narrative?",
-    "Are there markings, stencils, or inscriptions mentioned in the metadata that add historical or artistic value? Rank accordingly.",
-    "Show me paintings related to Renaissance.",
-    "Show me paintings depicting portraits.",
-    "Show me paintings with animals and flowers.",
-    "I want to see people in the paintings.",
-    "Rank the paintings based on their use of color.",
+    "The painting depicts a single moment rather than a sequence of events.",
+    "The painting depicts a sequence of events rather than a single moment.",
+    "The painting depicts a biblical event.",
+    "The painting includes recognizable historical figures or well-known literary characters.",
+    "The description of the painting suggests a dramatic scene with emphasis on a specific person, action, or object.",
+    "The painting depicts interaction between people.",
+    "The description indicates that the scene takes place indoors or in an architectural setting.",
+    "The description includes references to nature, such as landscapes.",
+    "The painting includes animals.",
+    "The description suggests imaginative or symbolic elements rather than realistic ones.",
 ];
 
 // HttpClient helper
-var HttpClient = function () {
-    this.get = function (aUrl, aCallback) {
-        var anHttpRequest = new XMLHttpRequest();
-        anHttpRequest.onreadystatechange = function () {
-            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
-                aCallback(anHttpRequest.responseText);
-        };
-
-        anHttpRequest.open("GET", aUrl, true);
-        anHttpRequest.send(null);
-    };
-};
+class HttpClient {
+    static get(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    resolve(xhr.responseText);
+                } else {
+                    reject(new Error(`Request failed with status ${xhr.status}`));
+                }
+            };
+            xhr.onerror = () => reject(new Error("Network error"));
+            xhr.send();
+        });
+    }
+}
 
 // Variables
 let currentPage = 1;
 let identificationPageVisited = false; // Track if the identification page has been visited
 let consentPageVisited = false; // Track if the consent page has been visited
+window.userIP = "";
+window.userProvidedCode = "";
+window.userAge = "";
+window.userGender = "";
+window.userEducation = "";
+window.userCountry = "";
+window.userProfession = "";
+window.userExperience = "";
+
 
 // DOM Elements
 const welcomePage = document.getElementById("welcomePage");
@@ -57,17 +61,28 @@ const myForm = document.getElementById("myForm");
 const backButton = document.getElementById("backButton");
 const nextButton = document.getElementById("nextButton");
 const submitButton = document.getElementById("submitButton");
-// DOM Elements for User Info
-const identificationPage = document.getElementById("identificationPage");
-const identificationForm = document.getElementById("identificationForm");
-const userNameInput = document.getElementById("userName");
-const userEmailInput = document.getElementById("userEmail");
+
+// DOM Elements for Consent
 const startButton = document.getElementById("startButton");
 const consentPage = document.getElementById("consentPage");
 const consentCheckbox = document.getElementById("consentCheckbox");
 const agreeConsentButton = document.getElementById("agreeConsentButton");
 
+// DOM Elements for User Info
+const identificationPage = document.getElementById("identificationPage");
+const identificationForm = document.getElementById("identificationForm");
+const userAge = document.getElementById("userAge");
+const userGender = document.getElementById("userGender");
+const userEducation = document.getElementById("userEducation");
+const userCountry = document.getElementById("userCountry");
+const userProfession = document.getElementById("userProfession");
+const userExperience = document.getElementById("userExperience");
 
+// DOM Element for the shared code
+const userProvidedCode = document.getElementById("userProvidedCode");
+
+// Google Script URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZBI60bKjhaadpDD04TOrVq9T-SuF6IQXQxOm6GE0BWP4_T98VJQqwqOERh5KecKHecQ/exec";
 
 // Event Listeners
 continueButton.addEventListener("click", redirectToConsentPage);
@@ -77,9 +92,15 @@ backButton.addEventListener("click", goToPreviousPage);
 nextButton.addEventListener("click", goToNextPage);
 submitButton.addEventListener("click", submitForm);
 
+// Warn user before leaving the page
+window.addEventListener("beforeunload", (event) => {
+    if (currentPage <= totalPages) {
+        event.preventDefault();
+        event.returnValue = "Your responses are still being submitted. Are you sure you want to leave?";
+    }
+});
 
-
-
+// Functions
 function redirectToConsentPage() {
     if (consentPageVisited) {
         // If already consented, go directly to identification page
@@ -88,6 +109,23 @@ function redirectToConsentPage() {
         welcomePage.style.display = "none";
         consentPage.style.display = "block";
     }
+}
+
+// Function to fetch IP address and then redirect to identification page
+function fetchUserIPAndRedirect(callback) {
+    fetch("https://api.ipify.org?format=json")
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            window.userIP = data.ip;
+            callback();
+        })
+        .catch(function (error) {
+            console.error("IP fetch error:", error);
+            window.userIP = "Unavailable";
+            callback();
+        });
 }
 
 
@@ -100,25 +138,23 @@ function handleConsentAgreement() {
     consentPageVisited = true; // Mark as visited
     consentPage.style.display = "none";
 
-    // Now fetch the paintings only after consent
+    // Fetch the paintings only after consent
     fetch('paintings.json')
-        .then(response => response.json())
-        .then(data => {
-            pages = data;
-            console.log("Paintings loaded:", pages.length);
-            redirectToIdentificationPage(); // Proceed only after loading paintings
+        .then(function (response) {
+            return response.json();
         })
-        .catch(error => {
+        .then(function (data) {
+            pages = data;
+            fetchUserIPAndRedirect(redirectToIdentificationPage);
+        })
+        .catch(function (error) {
             console.error("Failed to load paintings.json:", error);
             alert("Failed to load paintings. Please try again later.");
         });
 }
 
-
-// Functions
 function redirectToIdentificationPage() {
     if (identificationPageVisited) {
-        // If already filled, go directly to survey
         welcomePage.style.display = "none";
         surveyPage.style.display = "block";
         loadPage(currentPage);
@@ -130,26 +166,44 @@ function redirectToIdentificationPage() {
     }
 }
 
-
+function generateRandomCode() {
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
 
 function collectUserInfo() {
-    const userName = userNameInput.value.trim();
-    const userEmail = userEmailInput.value.trim();
+    const userAgeValue = userAge.value.trim();
+    const userGenderValue = userGender.value.trim();
+    const userEducationValue = userEducation.value.trim();
+    const userCountryValue = userCountry.value.trim();
+    const userProfessionValue = userProfession.value.trim();
+    const userExperienceValue = userExperience.value.trim();
+    const userProvidedCodeValue = userProvidedCode.value.trim();
 
     // Reminder to fill out the form with an alert
-    if (userName === "" || userEmail === "") {
-        alert("Please fill out both your name and email address.");
+    if (
+        userAgeValue === "" ||
+        userGenderValue === "" ||
+        userEducationValue === "" ||
+        userCountryValue === "" ||
+        userProfessionValue === "" ||
+        userExperienceValue === "" ||
+        userProvidedCodeValue === ""
+    ) {
+        alert("Please fill out all the required fields.");
         return;
     }
 
     // Save globally for later use for sending to the server
-    window.userName = userName;
-    window.userEmail = userEmail;
+    window.userAge = userAgeValue;
+    window.userGender = userGenderValue;
+    window.userEducation = userEducationValue;
+    window.userCountry = userCountryValue;
+    window.userProfession = userProfessionValue;
+    window.userExperience = userExperienceValue;
+    window.userProvidedCode = userProvidedCodeValue;
 
-    // Generate a random user code IF not already
-    if (!window.userCode) {
-        window.userCode = generateUserCode();
-    }
+    // Generate and store the random code
+    window.randomCode = generateRandomCode();
 
     // Collect start time
     window.startTime = new Date().toISOString();
@@ -157,8 +211,7 @@ function collectUserInfo() {
     identificationPageVisited = true; // Mark as visited
     identificationPage.style.display = "none";
     surveyPage.style.display = "block";
-    loadPage(currentPage); // ! Load the first page of the survey
-
+    loadPage(currentPage); // Load the first page of the survey
 }
 
 function loadPage(pageNumber) {
@@ -170,8 +223,6 @@ function loadPage(pageNumber) {
 
     // Get the page data from the `pages` array
     const pageData = pages[pageNumber - 1];
-    console.log(`Page Number: ${pageNumber}`); // Log the current page number
-    console.log(pageData);
 
     // Update the page heading
     pageHeading.textContent = pageData.heading;
@@ -234,9 +285,7 @@ function goToNextPage() {
         currentPage++;
         loadPage(currentPage);
     } else {
-        // Hide next botton and exchange it with a submit button
         nextButton.style.display = "none";
-        // Show submit button
         submitButton.style.display = "block";
     }
 }
@@ -298,6 +347,11 @@ function generateForm() {
 // Save answers on any click
 function saveAnswers() {
     const form = document.getElementById("evaluationForm");
+    if (!form.reportValidity()) {
+        console.warn("Form is incomplete. Answers not saved.");
+        return;
+    }
+
     const formData = new FormData(form);
 
     // Store answers for the current page
@@ -308,58 +362,46 @@ function saveAnswers() {
         answers[key] = value;
     }
     userAnswers["page" + currentPage] = answers;
-    console.log("Answers for Page " + currentPage + ":", answers);
 }
 
 
 
 function submitForm() {
-    // Validate the current page
     const form = document.getElementById("evaluationForm");
-    if (!form.reportValidity()) {
-        return;
-    }
+    if (!form.reportValidity()) return;
 
-    // Save current page answers in 'userAnswers' variable created in the 'saveAnswers' function
     saveAnswers();
-    console.log("All collected answers:", userAnswers);
 
-    // 3. Capture the end time
     const endTime = new Date().toISOString();
-
-    const allPages = Object.keys(userAnswers); // Looks like: ["page1", "page2", "page3", ...]
-    allPages.sort(function (a, b) {
-        // Sort pages based on page number
-        const pageNumberA = parseInt(a.replace("page", ""), 10);
-        const pageNumberB = parseInt(b.replace("page", ""), 10);
-        if (pageNumberA < pageNumberB) {
-            return -1;
-        } else if (pageNumberA > pageNumberB) {
-            return 1;
-        } else {
-            return 0;
-        }
+    const pagesToSend = Object.keys(userAnswers).sort(function (a, b) {
+        return parseInt(a.replace("page", "")) - parseInt(b.replace("page", ""));
     });
 
-    // Generate random user code
-    if (!window.userCode) {
-        window.userCode = generateUserCode();
-    }
+    submitFormSequentially(pagesToSend, endTime);
+}
 
-    // Now when all pages are sorted from n to 1, we can iterate through them in reverse order and send the data to the server
-    for (const pageName of allPages.reverse()) {
+
+async function submitFormSequentially(pagesToSend, endTime) {
+    const modalElement = document.getElementById("submissionModal");
+    modalElement.style.display = "block"; // Show the modal
+
+    for (let index = 0; index < pagesToSend.length; index++) {
+        const pageName = pagesToSend[index];
         const answers = userAnswers[pageName];
         const pageNumber = pageName.replace("page", "");
 
-        let url = "https://script.google.com/macros/s/AKfycbyGuVgfCeUMccwRTKl4eNJprzTLwGRE0fzsdxthsoeyYAHMWBKixzkO6xZQnaXZwoLb8Q/exec?";
-
-        // ➔ Add user's info
-        url += "UserName=" + encodeURIComponent(window.userName);
-        url += "&UserEmail=" + encodeURIComponent(window.userEmail);
-        url += "&UserCode=" + encodeURIComponent(window.userCode);
-
-        // ➔ Add page info
+        let url = `${GOOGLE_SCRIPT_URL}?UserProvidedCode=${encodeURIComponent(window.userProvidedCode)}`;
+        url += "&UserAge=" + encodeURIComponent(window.userAge);
+        url += "&UserGender=" + encodeURIComponent(window.userGender);
+        url += "&UserEducation=" + encodeURIComponent(window.userEducation);
+        url += "&UserCountry=" + encodeURIComponent(window.userCountry);
+        url += "&UserProfession=" + encodeURIComponent(window.userProfession);
+        url += "&UserExperience=" + encodeURIComponent(window.userExperience);
+        url += "&RandomCode=" + encodeURIComponent(window.randomCode);
+        url += "&UserIP=" + encodeURIComponent(window.userIP);
         url += "&Page=" + encodeURIComponent(pageNumber);
+        url += "&StartTime=" + encodeURIComponent(window.startTime);
+        url += "&EndTime=" + encodeURIComponent(endTime);
 
         for (const questionKey in answers) {
             const newKey = questionKey.replace("question", "Q");
@@ -367,25 +409,19 @@ function submitForm() {
             url += "&" + encodeURIComponent(newKey) + "=" + encodeURIComponent(value);
         }
 
-        // ➔ Add the start time and end time
-        url += "&StartTime=" + encodeURIComponent(window.startTime);
-        url += "&EndTime=" + encodeURIComponent(endTime);
-
-        var client = new HttpClient();
-        client.get(url, function (response) {
-            console.log("Data sent successfully for page " + pageNumber);
-        });
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+            } else {
+                console.error(`❌ Failed to send data for page ${pageNumber}: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`❌ Error sending data for page ${pageNumber}:`, error);
+        }
     }
 
+    modalElement.style.display = "none"; // Hide the modal
     alert("All your responses have been submitted. Thank you!");
 }
 
-// Helper function to generate random user code
-function generateUserCode() {
-    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 6; i++) {
-        code += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return code;
-}
+
