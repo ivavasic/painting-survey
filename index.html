@@ -124,7 +124,7 @@
     <!-- PAGES IN MY WEBSITE: -->
     <!-- First page content -->
     <div id="welcomePage">
-        <h1 style="text-align: center;">Welcome to the Painting Evaluation Study!</h1>
+        <h1 style="text-align: center;">Welcome to the GenAI Painting Evaluation Study!</h1>
 
         <div style="text-align: center;">
             <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
@@ -134,9 +134,9 @@
             <hr class="rounded">
         </h3>
         <h3>Context:</h3>
-        <p>You are a painting evaluator. You will be presented with 20 pages each consisting of one the textual description of one painting and 10 form statments. Your task is to rank how well the paintng's textual description aligns with the statments (e.g.<i> "The description includes references to nature, such as landscapes."</i>). Evaluate each painting individually based on the presented statments, without comparing it to other paintings. <b>Images of paintings are not availavble</b> as we currently use only textual descriptions for our validation process.</p>
+        <p>You are a painting evaluator. You will be presented with 20 pages, each consisting <b>only</b> of the <b>textual descriptions</b> of one painting and 10 form statements. Your task is to rank how well the painting's textual description aligns with the statements (e.g., <i>"The description includes references to nature, such as landscapes."</i>). Evaluate each painting individually based on the presented statements, without comparing it to other paintings. <b>Images of paintings are not available</b> as we currently use only textual descriptions for our validation process.</p>
         <h3>Your task:</h3>
-        <p>Rank each painting from 1 to 5 based on how well it meets the form statments:</p>
+        <p>Rank each painting from 1 to 5 based on how well it meets the form statements:</p>
         <ol>
             <li>Does not meet the criteria or relevant information is missing from the description.</li>
             <li>Meets very few aspects. </li>
@@ -144,17 +144,17 @@
             <li>Meets most aspects.</li>
             <li>Meets entirely the criteria.</li>
         </ol>
-        If the information needed to answer a question is missing from the painting's metadata or description (e.g.,
-        description, place of creation, or other relevant details), assign a rank of 1.
+        If the information needed to answer a question is missing from the painting's metadata or description (e.g., description, place of creation, or other relevant details), assign a rank of 1.
+
         </p>
 
         <div style="text-align: center;">
             <i class="fa fa-exclamation-circle" style="font-size: 22px; color: rgb(43, 43, 43);"></i>
         </div>
 
-        <p> <b>Note 1:</b> You will see one painting per page. Please rank all 10 statments before continuing. <br>
-            <b>Note 2:</b> Each painting consists mostly of metadata information followed by the description of the painting, while a few of them involve metadata only. The metadata and the description appear as separate paragraphs.<br>
-            <b>Note 3:</b> The content of the painting is entirely copied from the Getty Collection website. Some text may appear unstructured due to the formatting.<br>
+        <p> <b>Note 1:</b> You will see one textual description of a painting per page. Please rank all 10 statements before continuing. <br>
+            <b>Note 2:</b> Each description consists mostly of metadata information followed by the content description of the painting, while a few of them involve metadata only. The metadata and the description appear as separate paragraphs.<br>
+            <b>Note 3:</b> The content description of the painting is entirely copied from the Getty Collection website. Some text may appear unstructured due to the formatting.<br>
         </p>
 
         <div style="text-align: center;">
@@ -181,10 +181,9 @@
             <i class="fa fa-palette" style="font-size:30px; color: rgb(137, 43, 226);"></i>
         </div>
         <h2>Consent for Participation</h2>
-        <p>For identification purposes, you will be asked in the next page to provide you information inlcuding:
-            <b>Age, Gender, Education, Country, Profession, Familiarity with Art or Museums, and IP Adress.</b>. You will also be asked to provide a code that we shared with you so that we can identify valid participants and consider only the responses from those who enter the correct code. Additionally, a random code will be generated and collected for each user to differentiate individual participants and link their responses across multiple pages. <br> 
-            The collected information will be used for research analysis and shared with the ACM JOCCH journal's editors and reviewers. 
-            If the article is accepted, all personal information will be deleted before publishing the results in a GitHub or other repository.</p>
+        <p>For identification purposes, you will be asked in the next page to provide you information, including:
+            <b>Age, Gender, Education, Country, Profession, Familiarity with Art or Museums. In addition, your IP Adress will be recorded for preventing duplication of entries.</b>. You will also be asked to provide a code that we shared with you so that we can identify valid participants and consider only the responses from those who enter the correct code. Additionally, a random code will be generated and collected for each user to differentiate individual participants and link their responses across multiple pages. <br> 
+            The collected information will be used for research analysis and shared with the ACM JOCCH journal's editors and reviewers. If the article is accepted, all personal information will be deleted before publishing the results in a GitHub or other repository.</p>
 
         <div style="margin-top: 20px;">
             <input type="checkbox" id="consentCheckbox" required>
@@ -281,7 +280,9 @@
     <!-- Submission Modal -->
     <div id="submissionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; text-align: center;">
         <div style="position: relative; top: 50%; transform: translateY(-50%); background: white; padding: 20px; border-radius: 8px; display: inline-block;">
-            <p>Submitting your responses, please wait...</p>
+            <p>Submitting your responses, please wait... <br>
+                <i>(It can take up to a minute)</i> 
+            </p>
             <div class="spinner" style="margin-top: 10px; width: 40px; height: 40px; border: 4px solid #ccc; border-top: 4px solid #007bff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
         </div>
     </div>
