@@ -6,3 +6,7 @@ The content description of the painting is entirely copied from the Getty Collec
 This project uses the ipify API (https://www.ipify.org/) to retrieve public IP addresses.
 
 [1] https://www.getty.edu/art/collection/ (last accessed: 06.05.2025)
+
+### Data Collection
+
+All data is being collected in the personal (private) Google Sheets.
